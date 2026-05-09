@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aramco Unit Checklist System</title>
+<style>
+:root{--navy:#003b5c;--green:#007a53;--bg:#f3f6f9;--line:#d2dde5;--text:#102133}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.header{background:linear-gradient(90deg,var(--navy),var(--green));color:white;padding:28px 16px;text-align:center}
+.header h1{margin:0;font-size:30px;letter-spacing:.5px}
+.header p{margin:10px 0 0;font-size:16px;color:#d9efe8}
+.app{max-width:680px;margin:auto;padding:16px 14px 35px}
+.card{background:white;border-radius:20px;padding:18px;margin-bottom:15px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+label{display:block;font-weight:bold;font-size:16px;margin:13px 0 7px}
+input,select,textarea{width:100%;padding:14px;border:1px solid var(--line);border-radius:14px;font-size:16px;background:white}
+.btn{width:100%;border:0;border-radius:16px;padding:16px;margin-top:12px;font-size:17px;font-weight:bold}
+.green{background:var(--green);color:white}.navy{background:var(--navy);color:white}.gray{background:#e8eef3;color:#102133}
+.hidden{display:none}
+.check-btn{width:100%;border:0;background:white;border-radius:18px;padding:18px;margin-bottom:12px;display:flex;align-items:center;gap:14px;text-align:left;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.check-btn:active{transform:scale(.99)}
+.icon{font-size:32px;width:42px;text-align:center}
+.check-btn b{font-size:18px}
+.check-btn small{display:block;color:#647484;margin-top:4px;font-size:13px}
+.topbar{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+.back{border:0;background:#e8eef3;border-radius:13px;padding:11px 14px;font-size:16px}
+.title{font-size:22px;font-weight:bold}
+.info{line-height:1.8}
+.item{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.item-title{font-weight:bold;margin-bottom:10px}
+.options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.options input{display:none}
+.options label{margin:0;text-align:center;border:1px solid var(--line);border-radius:12px;padding:12px 8px;background:white;font-weight:normal}
+.options input:checked+label{background:var(--green);border-color:var(--green);color:white;font-weight:bold}
+.success{background:#e8f8f0;border:1px solid #8fd3ae;color:#14553b;padding:13px;border-radius:14px;margin-top:12px;line-height:1.5}
+.footer{text-align:center;color:#607080;font-size:12px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>ARAMCO CHECKLIST SYSTEM</h1>
+<p>Digital Mobile Inspection Workflow</p>
+</div>
+
+<div class="app">
+<section id="home">
+<div class="card">
+<label>Unit Name</label>
+<input id="unit" placeholder="Example: Maintenance Unit">
+<label>User Name / Badge</label>
+<input id="user" placeholder="Example: Ahmed / A12345">
+</div>
+
+<button class="check-btn" onclick="openChecklist('Vehicle Log Sheet','🚗',forms.vehicle)">
+<span class="icon">🚗</span><span><b>Vehicle Log Sheet</b><small>Daily vehicle inspection</small></span>
+</button>
+<button class="check-btn" onclick="openChecklist('Tango H2S Personnel Detector','🟢',forms.h2s)">
+<span class="icon">🟢</span><span><b>Tango H2S Personnel Detector</b><small>Personal gas detector readiness</small></span>
+</button>
+<button class="check-btn" onclick="openChecklist('Shop Checklist','🛠️',forms.shop)">
+<span class="icon">🛠️</span><span><b>Shop Checklist</b><small>Workshop readiness and safety</small></span>
+</button>
+<button class="check-btn" onclick="openChecklist('LOTO Checklist','🔒',forms.loto)">
+<span class="icon">🔒</span><span><b>LOTO Checklist</b><small>Lockout / Tagout verification</small></span>
+</button>
+<button class="check-btn" onclick="openChecklist('Club Car Checklist','🛺',forms.club)">
+<span class="icon">🛺</span><span><b>Club Car Checklist</b><small>Utility cart daily inspection</small></span>
+</button>
+</section>
+
+<section id="form" class="hidden">
+<div class="topbar">
+<button class="back" onclick="goHome()">← Back</button>
+<div class="title" id="title"></div>
+</div>
+
+<div class="card info">
+<b>Unit:</b> <span id="unitView"></span><br>
+<b>User / Badge:</b> <span id="userView"></span><br>
+<b>Date / Time:</b> <span id="dateView"></span>
+<div id="extraFields"></div>
+</div>
+
+<div id="items"></div>
+
+<div class="card">
+<label>General Remarks</label>
+<textarea id="generalRemarks" rows="3" placeholder="Write general notes or follow-up actions"></textarea>
+<label>Electronic Signature</label>
+<input id="signature" placeholder="Type your full name">
+
+<button class="btn green" onclick="saveReport()">Save Report</button>
+<button class="btn navy" onclick="emailReport()">Send By Email</button>
+<button class="btn gray" onclick="copyReport()">Copy Report</button>
+<div id="msg"></div>
+</div>
+</section>
+
+<div class="footer">Demo version — can be connected later to SharePoint Lists, Power Automate, Outlook, PDF, and dashboards.</div>
+</div>
+
+<script>
+const forms={
+vehicle:{extra:[["Vehicle Number","vehicleNo","Example: V-101"],["Odometer Reading","odo","Current KM"],["Driver Name","driver","Driver name"],["Location","location","Area / site"]],items:["Vehicle log book is available and updated","Seat belts are available and in good condition","Headlights, brake lights, and indicators are working","Horn and reverse alarm are working","Tires are in good condition and properly inflated","Brakes are functioning normally","Mirrors and windshield are clean and not damaged","Wipers and washer fluid are available","Fire extinguisher is available and valid","First aid kit is available","No visible fluid leakage under vehicle","Vehicle is clean and free from loose items"]},
+h2s:{extra:[["Detector Serial Number","serial","Serial number"],["Calibration Due Date","calDue","YYYY-MM-DD"],["Assigned User","assignedUser","Name"],["Work Area","workArea","Area"]],items:["Detector body is clean and free from damage","Battery level is acceptable","Bump test completed before use","Audible alarm is working","Visual alarm is working","Vibration alarm is working","Sensor opening is clean and not blocked","Calibration date is valid","Clip / attachment is secure","Reading shows normal condition before entry","User understands alarm response procedure"]},
+shop:{extra:[["Shop Area","shopArea","Example: Maintenance Shop"],["Supervisor","supervisor","Supervisor name"],["Shift","shiftName","Day / Night"],["Inspection Time","inspectionTime","HH:MM"]],items:["Housekeeping is acceptable","Walkways and emergency exits are clear","Tools are stored properly after use","Hand tools are in good condition","Electrical cables are organized and not damaged","PPE is available and used as required","Fire extinguisher access is clear and inspection tag is valid","Waste is disposed in the correct container","Chemical containers are labeled and stored properly","No slip, trip, or fall hazards observed","Lighting and ventilation are acceptable","Any unsafe condition has been reported"]},
+loto:{extra:[["Equipment / System","equipment","Equipment name"],["Work Order Number","workOrder","WO number"],["Authorized Person","authorized","Name"],["Permit Number","permit","Permit number"]],items:["Equipment or system is correctly identified","All energy sources are identified","Affected personnel have been notified","Equipment shutdown completed safely","Isolation points are confirmed","Locks and tags are applied correctly","Stored energy has been released or controlled","Zero energy verification completed","Work area is safe before starting work","Only authorized persons are performing the task","Locks and tags will be removed only by authorized person","Equipment return-to-service steps are understood"]},
+club:{extra:[["Club Car Number","cartNo","Example: CC-01"],["Operator Name","operator","Operator name"],["Route / Area","route","Route or area"],["Battery / Fuel Level","battery","Full / 3-4 / 1-2 / Low"]],items:["Battery / fuel level is acceptable","Tires are in good condition","Steering is functioning normally","Brakes are functioning normally","Forward and reverse movement are normal","Lights are working","Horn / warning device is working","Seat and seat belt are in good condition","Mirrors are available and clean","No visible damage to body or frame","No abnormal noise during operation","Cart is clean and free from loose items"]}
+};
+let currentTitle="",currentData=null;
+function now(){return new Date().toLocaleString("en-GB")}
+function openChecklist(title,icon,checklist){
+currentTitle=title;currentData=checklist;
+document.getElementById("home").classList.add("hidden");
+document.getElementById("form").classList.remove("hidden");
+document.getElementById("title").textContent=icon+" "+title;
+document.getElementById("unitView").textContent=document.getElementById("unit").value||"Not specified";
+document.getElementById("userView").textContent=document.getElementById("user").value||"Not specified";
+document.getElementById("dateView").textContent=now();
+let extra=document.getElementById("extraFields");extra.innerHTML="";
+checklist.extra.forEach(([label,id,ph])=>{extra.innerHTML+=`<label>${label}</label><input id="${id}" placeholder="${ph}">`;});
+let items=document.getElementById("items");items.innerHTML="";
+checklist.items.forEach((item,i)=>{items.innerHTML+=`<div class="item"><div class="item-title">${i+1}. ${item}</div><div class="options"><input id="ok${i}" type="radio" name="q${i}" value="OK"><label for="ok${i}">OK</label><input id="notok${i}" type="radio" name="q${i}" value="NOT OK"><label for="notok${i}">NOT OK</label><input id="na${i}" type="radio" name="q${i}" value="N/A"><label for="na${i}">N/A</label></div><input id="remark${i}" placeholder="Remarks / corrective action" style="margin-top:10px"></div>`;});
+document.getElementById("msg").innerHTML="";
+window.scrollTo(0,0);
+}
+function goHome(){document.getElementById("form").classList.add("hidden");document.getElementById("home").classList.remove("hidden");window.scrollTo(0,0);}
+function buildReport(){
+let text="UNIT MOBILE CHECKLIST REPORT\n================================\n\n";
+text+="Checklist: "+currentTitle+"\n";
+text+="Unit: "+document.getElementById("unitView").textContent+"\n";
+text+="User / Badge: "+document.getElementById("userView").textContent+"\n";
+text+="Date / Time: "+document.getElementById("dateView").textContent+"\n\n";
+text+="Additional Information:\n";
+currentData.extra.forEach(([label,id])=>{text+="- "+label+": "+(document.getElementById(id).value||"")+"\n";});
+text+="\nChecklist Items:\n";
+currentData.items.forEach((item,i)=>{const s=document.querySelector('input[name="q'+i+'"]:checked');const r=document.getElementById("remark"+i).value||"";text+=(i+1)+". "+item+" = "+(s?s.value:"BLANK")+"\n";if(r){text+="   Remark: "+r+"\n";}});
+text+="\nGeneral Remarks: "+(document.getElementById("generalRemarks").value||"")+"\n";
+text+="Electronic Signature: "+(document.getElementById("signature").value||"")+"\n";
+return text;
+}
+function saveReport(){const blob=new Blob([buildReport()],{type:"text/plain"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=currentTitle.replaceAll(" ","_")+"_Report.txt";a.click();document.getElementById("msg").innerHTML='<div class="success"><b>Saved successfully.</b><br>The checklist report has been downloaded.</div>';}
+function emailReport(){window.location.href="mailto:?subject="+encodeURIComponent(currentTitle+" Report")+"&body="+encodeURIComponent(buildReport());}
+async function copyReport(){await navigator.clipboard.writeText(buildReport());document.getElementById("msg").innerHTML='<div class="success"><b>Copied.</b><br>The report has been copied.</div>';}
+</script>
+</body>
+</html>
