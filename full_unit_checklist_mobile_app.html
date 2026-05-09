@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit Checklist Mobile App - Full Demo</title>
+<style>
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f6f9;color:#122033}
+.app{max-width:540px;margin:auto;padding-bottom:30px}
+.header{background:#0b2942;color:white;padding:20px 16px;border-radius:0 0 22px 22px}
+.header h1{margin:0;font-size:22px}.header p{margin:6px 0 0;color:#cfe3f5;font-size:13px}
+.content{padding:16px}.card{background:white;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 3px 12px #0001}
+label{display:block;font-size:13px;font-weight:bold;margin:10px 0 6px}
+input,textarea,select{width:100%;box-sizing:border-box;padding:13px;border:1px solid #cbd5df;border-radius:12px;font-size:16px;background:white}
+.checkBtn{width:100%;border:0;background:white;text-align:left;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 3px 12px #0001;font-size:16px;display:flex;gap:12px;align-items:center}
+.checkBtn:active{transform:scale(.99)}.icon{font-size:30px;width:38px;text-align:center}.sub{font-size:12px;color:#667788;margin-top:3px}
+.item{background:white;border-radius:15px;padding:14px;margin-bottom:10px;box-shadow:0 2px 9px #0000000d}
+.item-title{font-weight:bold;margin-bottom:10px}
+.seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.seg input{display:none}.seg label{margin:0;text-align:center;padding:11px 8px;border:1px solid #d7e0ea;border-radius:11px;background:#f8fafc;font-size:14px}
+.seg input:checked + label{background:#0b76bd;color:white;border-color:#0b76bd}
+.btn{width:100%;border:0;border-radius:15px;padding:15px;font-size:17px;font-weight:bold;margin-top:10px}
+.primary{background:#138a36;color:white}.secondary{background:#e9eef3;color:#122033}
+.success{background:#e8f7ee;border:1px solid #8fd19e;color:#145c2a;padding:13px;border-radius:14px;margin-top:12px;line-height:1.5}
+#formSection{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Unit Checklist Mobile App</h1>
+    <p>Full demo: select a checklist, complete it, then save or share.</p>
+  </div>
+
+  <div class="content">
+    <div id="homeSection">
+      <div class="card">
+        <label>Unit Name</label>
+        <input id="unit" placeholder="Example: Maintenance Unit">
+        <label>User Name / Badge</label>
+        <input id="user" placeholder="Example: Ahmed / 12345">
+      </div>
+
+      <button class="checkBtn" onclick="openForm('Vehicle Log Sheet','🚗',forms.vehicle)"><span class="icon">🚗</span><span><b>Vehicle Log Sheet</b><div class="sub">Daily vehicle inspection</div></span></button>
+      <button class="checkBtn" onclick="openForm('Tango H2S Personnel Detector','🟢',forms.h2s)"><span class="icon">🟢</span><span><b>Tango H2S Personnel Detector</b><div class="sub">Personal gas detector check</div></span></button>
+      <button class="checkBtn" onclick="openForm('Shop Checklist','🛠️',forms.shop)"><span class="icon">🛠️</span><span><b>Shop Checklist</b><div class="sub">Shop readiness and safety</div></span></button>
+      <button class="checkBtn" onclick="openForm('LOTO Checklist','🔒',forms.loto)"><span class="icon">🔒</span><span><b>LOTO Checklist</b><div class="sub">Lockout / Tagout verification</div></span></button>
+      <button class="checkBtn" onclick="openForm('Club Car Checklist','🛺',forms.club)"><span class="icon">🛺</span><span><b>Club Car Checklist</b><div class="sub">Utility cart inspection</div></span></button>
+    </div>
+
+    <div id="formSection">
+      <button class="btn secondary" onclick="backHome()">← Back</button>
+      <h2 id="formTitle"></h2>
+
+      <div class="card">
+        <b>Unit:</b> <span id="unitView"></span><br>
+        <b>User:</b> <span id="userView"></span><br>
+        <b>Date/Time:</b> <span id="dateView"></span>
+        <div id="extraFields"></div>
+      </div>
+
+      <div id="items"></div>
+
+      <div class="card">
+        <label>General Remarks</label>
+        <textarea id="notes" rows="3" placeholder="Write any issue or corrective action"></textarea>
+        <label>Electronic Signature</label>
+        <input id="signature" placeholder="Type your full name">
+      </div>
+
+      <button class="btn primary" onclick="saveForm()">Submit & Save</button>
+      <button class="btn secondary" onclick="shareForm()">Share / Upload</button>
+      <div id="msg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const forms = {
+  vehicle:{extra:[['Vehicle Number','vehicleNo'],['Odometer Reading','odo']],items:['Log book available and updated','Seat belts in good condition','Lights and indicators working','Horn and reverse alarm working','Tires in good condition','Brakes functioning normally','Mirrors and windshield clean','Fire extinguisher available and valid','No visible leakage','Vehicle clean and free from loose items']},
+  h2s:{extra:[['Detector Serial Number','serial'],['Calibration Due Date','calDue']],items:['Device body clean and not damaged','Battery level acceptable','Bump test completed','Audible alarm working','Visual alarm working','Vibration alarm working','Sensor opening not blocked','Calibration date valid','Clip / attachment secure','User knows alarm response procedure']},
+  shop:{extra:[['Shop Area','shopArea'],['Supervisor','supervisor']],items:['Housekeeping acceptable','Walkways clear','Emergency exits clear','Tools stored properly','Hand tools in good condition','Electrical cables organized','PPE available and used','Fire extinguisher accessible and valid','Waste disposed correctly','No slip/trip/fall hazards','Unsafe condition reported']},
+  loto:{extra:[['Equipment / System','equipment'],['Work Order / Permit Number','permit']],items:['Equipment correctly identified','Energy sources identified','Affected personnel notified','Equipment shutdown completed','Isolation points confirmed','Locks and tags applied correctly','Stored energy released or controlled','Zero energy verification completed','Work area safe before starting work','Only authorized persons performing task','Return-to-service steps understood']},
+  club:{extra:[['Club Car Number','cartNo'],['Route / Area','area'],['Battery / Fuel Level','battery']],items:['Battery / fuel level acceptable','Tires in good condition','Steering functioning normally','Brakes functioning normally','Forward and reverse movement normal','Lights working','Horn / warning device working','Seat and seat belt in good condition','Mirrors available and clean','No visible damage to body or frame','No abnormal noise during operation','Cart clean and free from loose items']}
+};
+let currentTitle='', currentIcon='', currentForm=null;
+function now(){return new Date().toLocaleString('en-GB')}
+function openForm(title, icon, form){
+  currentTitle=title; currentIcon=icon; currentForm=form;
+  document.getElementById('homeSection').style.display='none';
+  document.getElementById('formSection').style.display='block';
+  document.getElementById('formTitle').textContent=icon+' '+title;
+  document.getElementById('unitView').textContent=document.getElementById('unit').value||'Not specified';
+  document.getElementById('userView').textContent=document.getElementById('user').value||'Not specified';
+  document.getElementById('dateView').textContent=now();
+  const extra=document.getElementById('extraFields'); extra.innerHTML='';
+  form.extra.forEach(([label,id])=>{extra.innerHTML += `<label>${label}</label><input id="${id}" placeholder="${label}">`;});
+  const items=document.getElementById('items'); items.innerHTML='';
+  form.items.forEach((item,i)=>{
+    items.innerHTML += `<div class="item"><div class="item-title">${i+1}. ${item}</div>
+    <div class="seg">
+      <input id="ok${i}" type="radio" name="r${i}" value="OK"><label for="ok${i}">OK</label>
+      <input id="no${i}" type="radio" name="r${i}" value="Not OK"><label for="no${i}">Not OK</label>
+      <input id="na${i}" type="radio" name="r${i}" value="N/A"><label for="na${i}">N/A</label>
+    </div><input id="remark${i}" style="margin-top:10px" placeholder="Remarks / corrective action"></div>`;
+  });
+  document.getElementById('msg').innerHTML='';
+  window.scrollTo(0,0);
+}
+function backHome(){document.getElementById('formSection').style.display='none';document.getElementById('homeSection').style.display='block';}
+function collect(){
+  let text=`${currentTitle}\nUnit: ${document.getElementById('unitView').textContent}\nUser: ${document.getElementById('userView').textContent}\nDate/Time: ${document.getElementById('dateView').textContent}\n`;
+  currentForm.extra.forEach(([label,id])=>{text += `${label}: ${document.getElementById(id).value}\n`;});
+  text += '\nChecklist Items:\n';
+  currentForm.items.forEach((item,i)=>{
+    const selected=document.querySelector(`input[name="r${i}"]:checked`);
+    text += `${i+1}. ${item} | ${selected?selected.value:'Blank'} | ${document.getElementById('remark'+i).value}\n`;
+  });
+  text += `\nGeneral Remarks: ${document.getElementById('notes').value}\nSignature: ${document.getElementById('signature').value}\n`;
+  return text;
+}
+function saveForm(){
+  const text=collect();
+  localStorage.setItem(currentTitle+'_'+Date.now(), text);
+  const blob=new Blob([text],{type:'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=currentTitle.replaceAll(' ','_')+'.txt'; a.click();
+  document.getElementById('msg').innerHTML='<div class="success"><b>Saved.</b><br>Checklist saved locally and downloaded as a text file.</div>';
+}
+async function shareForm(){
+  const text=collect();
+  if(navigator.share){await navigator.share({title:currentTitle,text});}
+  else{await navigator.clipboard.writeText(text);document.getElementById('msg').innerHTML='<div class="success">Checklist copied. Paste it in email, Teams, or upload it manually.</div>';}
+}
+</script>
+</body>
+</html>
